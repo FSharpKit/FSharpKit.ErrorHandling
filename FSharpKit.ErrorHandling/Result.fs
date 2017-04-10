@@ -170,8 +170,7 @@ module Result =
     | Error e ->
       p e
 
-  [<Sealed>]
-  type ResultBuilder internal () =
+  type ResultMinimalBuilder internal () =
     member this.Return(x) =
       Ok x
 
@@ -187,12 +186,60 @@ module Result =
     member this.Using(x, f) =
       using x f
 
+  type ResultFullBuilder internal () =
+    inherit ResultMinimalBuilder()
+
+    member inline this.Run(f): Result<'x, 'e> = f ()
+
+    member inline this.Delay(f): unit -> Result<'x, 'e> = f
+
+    member inline this.TryWith(f, h): Result<'x, 'e> =
+      try
+        f ()
+      with
+      | e -> h e
+
+    member inline this.TryFinally(f, g): Result<'x, 'e> =
+      try
+        f ()
+      finally
+        g ()
+
+    member inline this.Combine(r, f): Result<'x, 'e> =
+      match r with
+      | Ok () ->
+        f ()
+      | Error e ->
+        Error e
+
+    member this.While(guard, f): Result<unit, 'e> =
+      let rec loop () =
+        if guard () then
+          this.Combine(f (), loop)
+        else
+          Ok ()
+      loop ()
+
+    member this.For(xs: seq<'x>, f): Result<unit, 'e> =
+      use enumerator = xs.GetEnumerator()
+      let rec loop () =
+        if enumerator.MoveNext() then
+          this.Combine(f enumerator.Current, loop)
+        else
+          Ok ()
+      loop ()
+
   /// Builds a computation which be may terminated with an error
   /// using computation expression syntax.
-  let build = ResultBuilder()
+  /// Supports minimal syntax for performance.
+  let build' = ResultMinimalBuilder()
 
-  [<Sealed>]
-  type ResultErrorBuilder internal () =
+  /// Builds a computation which be may terminated with an error
+  /// using computation expression syntax.
+  /// Supports full syntax.
+  let build = ResultFullBuilder()
+
+  type ResultErrorMinimalBuilder internal () =
     member this.Return(x) =
       Error x
 
@@ -208,6 +255,55 @@ module Result =
     member this.Using(x, f) =
       using x f
 
+  type ResultErrorFullBuilder internal () =
+    inherit ResultErrorMinimalBuilder()
+
+    member inline this.Run(f): Result<'x, 'e> = f ()
+
+    member inline this.Delay(f): unit -> Result<'x, 'e> = f
+
+    member inline this.TryWith(f, h): Result<'x, 'e> =
+      try
+        f ()
+      with
+      | e -> h e
+
+    member inline this.TryFinally(f, g): Result<'x, 'e> =
+      try
+        f ()
+      finally
+        g ()
+
+    member inline this.Combine(r, f): Result<'x, 'e> =
+      match r with
+      | Ok x ->
+        Ok x
+      | Error () ->
+        f ()
+
+    member this.While(guard, f): Result<'x, unit> =
+      let rec loop () =
+        if guard () then
+          this.Combine(f (), loop)
+        else
+          Error ()
+      loop ()
+
+    member this.For(xs: seq<'x>, f): Result<'x, unit> =
+      use enumerator = xs.GetEnumerator()
+      let rec loop () =
+        if enumerator.MoveNext() then
+          this.Combine(f enumerator.Current, loop)
+        else
+          Error ()
+      loop ()
+      
   /// Builds a computation which may be terminated with a successful result value
   /// using computation expression syntax.
-  let buildError = ResultErrorBuilder()
+  /// Supports minimal syntax for performance.
+  let buildError' = ResultErrorMinimalBuilder()
+
+  /// Builds a computation which may be terminated with a successful result value
+  /// using computation expression syntax.
+  /// Supports full syntax.
+  let buildError = ResultErrorFullBuilder()

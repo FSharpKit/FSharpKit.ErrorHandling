@@ -1,6 +1,7 @@
 ﻿namespace FSharpKit.ErrorHandling
 
 open System
+open FSharpKit.Misc.Disposables
 open FSharpKit.UnitTest
 
 module ``test Result`` =
@@ -159,3 +160,166 @@ module ``test Result`` =
       case (Error "y", false, false)
       run body
     }
+
+  module ``test build`` =
+    let ``test return`` =
+      test {
+        do!
+          Result.build {
+            return 1
+          } |> is (Ok 1)
+      }
+
+    let ``test return!`` =
+      test {
+        do!
+          Result.build {
+            return! Ok 1
+          } |> is (Ok 1)
+        do!
+          Result.build {
+            return! Error "x"
+          } |> is (Error "x")
+      }
+
+    module ``test use`` =
+      let ``completion case`` =
+        test {
+          let disposable = new CountDisposable()
+          do!
+            Result.build {
+              use disposable = disposable
+              return disposable.Count
+            } |> is (Ok 0)
+          do! disposable.Count |> is 1
+        }
+
+      let ``exceptional case`` =
+        test {
+          let disposable = new CountDisposable()
+          let r () =
+            Result.build {
+              use disposable = disposable
+              exn(disposable.Count |> string) |> raise
+            }
+          let! e = trap { it (r ()) }
+          do! e.Message |> is "0"
+          do! disposable.Count |> is 1
+        }
+
+
+    module ``test try-with`` =
+      let ``completion case`` =
+        test {
+          let disposable = new CountDisposable()
+          do!
+            Result.build {
+              try
+                return disposable.Count
+              with
+              | e ->
+                disposable.Dispose()
+                return! Error e
+            } |> is (Ok 0)
+          do! disposable.Count |> is 0
+        }
+
+      let ``exceptional case`` =
+        test {
+          let disposable = new CountDisposable()
+          let e =
+            Result.build {
+              try
+                exn(disposable.Count |> string) |> raise
+              with
+              | e ->
+                disposable.Dispose()
+                return! Error e
+            } |> Result.errorOrRaise
+          do! e.Message |> is "0"
+          do! disposable.Count |> is 1
+        }
+
+    module ``test try-finally`` =
+      let ``completion case`` =
+        test {
+          let disposable = new CountDisposable()
+          do!
+            Result.build {
+              try
+                return disposable.Count
+              finally
+                disposable.Dispose()
+            } |> is (Ok 0)
+          do! disposable.Count |> is 1
+        }
+
+      let ``exceptional case`` =
+        test {
+          let disposable = new CountDisposable()
+          let r () =
+            Result.build {
+              try
+                exn(disposable.Count |> string) |> raise
+              finally
+                disposable.Dispose()
+            }
+          let! e = trap { it (r ()) }
+          do! e.Message |> is "0"
+          do! disposable.Count |> is 1
+        }
+
+    module ``test while`` =
+      let ``completion case`` =
+        test {
+          let i = ref 0
+          let n = 5
+          do!
+            Result.build {
+              while !i < n do
+                i |> incr
+            } |> is (Ok ())
+          do! !i |> is n
+        }
+
+      let ``error case`` =
+        test {
+          let i = ref 0
+          let n = 5
+          let tryIncrement () =
+            let j = !i + 1
+            if j < n then Ok j else Error ()
+          do!
+            Result.build {
+              while true do
+                let! j = tryIncrement ()
+                i := j
+            } |> is (Error ())
+        }
+
+    module ``test for`` =
+      let ``completion case`` =
+        test {
+          let n = 5
+          let xs = [|0..(n - 1)|]
+          let list = ResizeArray()
+          do!
+            Result.build {
+              for x in xs do
+                list.Add(x)
+            } |> is (Ok ())
+          do! list.ToArray() |> is xs
+        }
+
+      let ``error case`` =
+        test {
+          let n = 5
+          let list = ResizeArray()
+          do!
+            Result.build {
+              for x in seq {0..10000} do
+                do! (if x < n then Ok () else Error x)
+                list.Add(x)
+            } |> is (Error n)
+          do! list.ToArray() |> is [|0..(n - 1)|]
+        }
