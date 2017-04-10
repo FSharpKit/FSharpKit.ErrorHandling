@@ -162,7 +162,7 @@ module Result =
       true
 
   /// Gets a value indicating whether
-  // if the result has an error then it satisfies the predicate.
+  /// if the result has an error then it satisfies the predicate.
   let forallError (p: 'e -> bool) (result: Result<'x, 'e>): bool =
     match result with
     | Ok x ->
