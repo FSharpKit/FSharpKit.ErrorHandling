@@ -53,7 +53,9 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="UnitTest.Helpers.fs" />
+    <Compile Include="Misc.Disposable.fs" />
     <Compile Include="Result.Tests.fs" />
+    <Compile Include="AsyncResult.Tests.fs" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
