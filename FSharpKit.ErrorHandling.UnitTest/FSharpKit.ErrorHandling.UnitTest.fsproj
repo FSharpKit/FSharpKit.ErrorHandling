@@ -54,6 +54,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="UnitTest.Helpers.fs" />
     <Compile Include="Misc.Disposable.fs" />
+    <Compile Include="Option.Tests.fs" />
     <Compile Include="Result.Tests.fs" />
     <Compile Include="AsyncResult.Tests.fs" />
     <Content Include="packages.config" />
