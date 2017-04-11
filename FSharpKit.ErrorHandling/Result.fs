@@ -171,19 +171,19 @@ module Result =
       p e
 
   type ResultMinimalBuilder internal () =
-    member this.Return(x) =
+    member inline this.Return(x) =
       Ok x
 
-    member this.ReturnFrom(result: Result<_, _>) =
+    member inline this.ReturnFrom(result: Result<_, _>) =
       result
 
-    member this.Zero() =
+    member inline this.Zero() =
       Ok ()
 
-    member this.Bind(m, f) =
+    member inline this.Bind(m, f) =
       m |> Result.bind f
 
-    member this.Using(x, f) =
+    member inline this.Using(x, f) =
       using x f
 
   type ResultFullBuilder internal () =
@@ -240,19 +240,19 @@ module Result =
   let build = ResultFullBuilder()
 
   type ResultErrorMinimalBuilder internal () =
-    member this.Return(x) =
+    member inline this.Return(x) =
       Error x
 
-    member this.ReturnFrom(result: Result<_, _>) =
+    member inline this.ReturnFrom(result: Result<_, _>) =
       result
 
-    member this.Zero() =
+    member inline this.Zero() =
       Error ()
 
-    member this.Bind(m, f) =
+    member inline this.Bind(m, f) =
       m |> bindError f
 
-    member this.Using(x, f) =
+    member inline this.Using(x, f) =
       using x f
 
   type ResultErrorFullBuilder internal () =
