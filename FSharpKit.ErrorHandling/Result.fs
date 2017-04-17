@@ -189,23 +189,23 @@ module Result =
   type ResultFullBuilder internal () =
     inherit ResultMinimalBuilder()
 
-    member inline this.Run(f): Result<'x, 'e> = f ()
+    member this.Run(f): Result<'x, 'e> = f ()
 
-    member inline this.Delay(f): unit -> Result<'x, 'e> = f
+    member this.Delay(f): unit -> Result<'x, 'e> = f
 
-    member inline this.TryWith(f, h): Result<'x, 'e> =
+    member this.TryWith(f, h): Result<'x, 'e> =
       try
         f ()
       with
       | e -> h e
 
-    member inline this.TryFinally(f, g): Result<'x, 'e> =
+    member this.TryFinally(f, g): Result<'x, 'e> =
       try
         f ()
       finally
         g ()
 
-    member inline this.Combine(r, f): Result<'x, 'e> =
+    member this.Combine(r, f): Result<'x, 'e> =
       match r with
       | Ok () ->
         f ()
@@ -258,23 +258,23 @@ module Result =
   type ResultErrorFullBuilder internal () =
     inherit ResultErrorMinimalBuilder()
 
-    member inline this.Run(f): Result<'x, 'e> = f ()
+    member this.Run(f): Result<'x, 'e> = f ()
 
-    member inline this.Delay(f): unit -> Result<'x, 'e> = f
+    member this.Delay(f): unit -> Result<'x, 'e> = f
 
-    member inline this.TryWith(f, h): Result<'x, 'e> =
+    member this.TryWith(f, h): Result<'x, 'e> =
       try
         f ()
       with
       | e -> h e
 
-    member inline this.TryFinally(f, g): Result<'x, 'e> =
+    member this.TryFinally(f, g): Result<'x, 'e> =
       try
         f ()
       finally
         g ()
 
-    member inline this.Combine(r, f): Result<'x, 'e> =
+    member this.Combine(r, f): Result<'x, 'e> =
       match r with
       | Ok x ->
         Ok x
