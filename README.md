@@ -4,18 +4,18 @@ STATUS: NOT STABLE
 ## Overview
 Provides the Option builder, Result operators/builders, AsyncResult builders.
 
-# Install
-## via NuGet
+## Install
+### via NuGet
 *Coming soon*
 
-## via Paket
+### via Paket
 There are two ways to install the library.
 
-### 1. NuGet dependency
+#### 1. NuGet dependency
 *Coming soon*
 
-### 2. GitHub dependency
-paket.dependencies:
+#### 2. GitHub dependency
+In paket.dependencies:
 
 ```
 github FSharpKit/FSharpKit.ErrorHandling:TAG FSharpKit.ErrorHandling/Option.fs
@@ -25,7 +25,7 @@ github FSharpKit/FSharpKit.ErrorHandling:TAG FSharpKit.ErrorHandling/AsyncResult
 
 where `TAG` is a git tag (e.g. `v1.0.0`).
 
-paket.references of a project:
+In paket.references of a project:
 
 ```
 File: Option.fs FSharpKit.ErrorHandling/
