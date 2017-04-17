@@ -33,4 +33,4 @@ File: Result.fs FSharpKit.ErrorHandling/
 File: AsyncResult.fs FSharpKit.ErrorHandling/
 ```
 
-Of cause, you can omit some of files. See documents of Paket for details.
+Of course, you can omit some of files. See documents of Paket for details.
