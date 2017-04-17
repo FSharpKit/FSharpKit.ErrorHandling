@@ -1,7 +1,5 @@
 ﻿namespace FSharpKit.ErrorHandling
 
-// In F# 4.0 or previous, you need to define Result type and module (map, mapError, bind) in advance.
-
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Result =
