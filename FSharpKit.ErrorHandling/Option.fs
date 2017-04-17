@@ -26,23 +26,23 @@ module Option =
   type OptionFullBuilder internal () =
     inherit OptionMinimalBuilder()
 
-    member inline this.Run(f): Option<'x> = f ()
+    member this.Run(f): Option<'x> = f ()
 
-    member inline this.Delay(f): unit -> Option<'x> = f
+    member this.Delay(f): unit -> Option<'x> = f
 
-    member inline this.TryWith(f, h): Option<'x> =
+    member this.TryWith(f, h): Option<'x> =
       try
         f ()
       with
       | e -> h e
 
-    member inline this.TryFinally(f, g): Option<'x> =
+    member this.TryFinally(f, g): Option<'x> =
       try
         f ()
       finally
         g ()
 
-    member inline this.Combine(o, f): Option<'x> =
+    member this.Combine(o, f): Option<'x> =
       match o with
       | Some () ->
         f ()
