@@ -1,4 +1,4 @@
-﻿namespace Microsoft.FSharp.Core
+﻿namespace global
 
 // In F# 4.0 or lower, you need to define a macro named `LOWER_THAN_FSHARP_41`.
 
