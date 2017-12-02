@@ -13,24 +13,24 @@ module AsyncResult =
       }
 
   type AsyncResultFullBuilder internal () =
-    member inline this.Run(f) = f ()
+    member inline __.Run(f) = f ()
 
-    member inline this.Delay(f): unit -> Async<Result<'x, 'e>> = f
+    member inline __.Delay(f): unit -> Async<Result<'x, 'e>> = f
 
-    member inline this.Return(x): Async<Result<'x, 'e>> =
+    member inline __.Return(x): Async<Result<'x, 'e>> =
       async {
         return Ok x
       }
 
-    member inline this.ReturnFrom(ar): Async<Result<'x, 'e>> =
+    member inline __.ReturnFrom(ar): Async<Result<'x, 'e>> =
       ar
 
-    member inline this.Zero(): Async<Result<unit, 'e>> =
+    member inline __.Zero(): Async<Result<unit, 'e>> =
       async {
         return Ok ()
       }
 
-    member this.Bind(ar, f): Async<Result<'y, 'e>> =
+    member __.Bind(ar, f): Async<Result<'y, 'e>> =
       async {
         let! r = ar
         match r with
@@ -40,7 +40,7 @@ module AsyncResult =
           return Error e
       }
 
-    member this.Bind(r, f): Async<Result<'y, 'e>> =
+    member __.Bind(r, f): Async<Result<'y, 'e>> =
       async {
         match r with
         | Ok x ->
@@ -49,16 +49,16 @@ module AsyncResult =
           return Error e
       }
 
-    member inline this.Bind(a: Async<unit>, f): Async<Result<'x, 'e>> =
+    member inline __.Bind(a: Async<unit>, f): Async<Result<'x, 'e>> =
       async {
         do! a
         return! f ()
       }
 
-    member inline this.Using(x, f): Async<Result<'y, 'e>> =
+    member inline __.Using(x, f): Async<Result<'y, 'e>> =
       Internal.using x f
 
-    member inline this.TryWith(f, h): Async<Result<'x, 'e>> =
+    member inline __.TryWith(f, h): Async<Result<'x, 'e>> =
       async {
         try
           return! f ()
@@ -67,7 +67,7 @@ module AsyncResult =
           return! h e
       }
 
-    member inline this.TryFinally(f, onFinally): Async<Result<'x, 'e>> =
+    member inline __.TryFinally(f, onFinally): Async<Result<'x, 'e>> =
       async {
         try
           return! f ()
@@ -75,7 +75,7 @@ module AsyncResult =
           onFinally ()
       }
 
-    member this.Combine(ar, continuation): Async<Result<'x, 'e>> =
+    member __.Combine(ar, continuation): Async<Result<'x, 'e>> =
       async {
         let! r = ar
         match r with
@@ -85,7 +85,7 @@ module AsyncResult =
           return Error e
       }
 
-    member this.While(guard, f): Async<Result<unit, 'e>> =
+    member __.While(guard, f): Async<Result<unit, 'e>> =
       let rec loop () =
         async {
           if guard () then
@@ -100,7 +100,7 @@ module AsyncResult =
         }
       loop ()
 
-    member this.For(xs: seq<'x>, f): Async<Result<unit, 'e>> =
+    member __.For(xs: seq<'x>, f): Async<Result<unit, 'e>> =
       async {
         use enumerator = xs.GetEnumerator()
         let rec loop () =

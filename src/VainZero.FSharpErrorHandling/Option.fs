@@ -4,45 +4,45 @@
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Option =
   type OptionMinimalBuilder internal () =
-    member inline this.Return(x): Option<'x> =
+    member inline __.Return(x): Option<'x> =
       Some x
 
-    member inline this.ReturnFrom(option): Option<'x> =
+    member inline __.ReturnFrom(option): Option<'x> =
       option
 
-    member inline this.Zero(): Option<unit> =
+    member inline __.Zero(): Option<unit> =
       Some ()
 
-    member inline this.Bind(o, f): Option<'x> =
+    member inline __.Bind(o, f): Option<'x> =
       match o with
       | Some x ->
         f x
       | None ->
         None
 
-    member inline this.Using(x, f): Option<'x> =
+    member inline __.Using(x, f): Option<'x> =
       using x f
 
   type OptionFullBuilder internal () =
     inherit OptionMinimalBuilder()
 
-    member this.Run(f): Option<'x> = f ()
+    member __.Run(f): Option<'x> = f ()
 
-    member this.Delay(f): unit -> Option<'x> = f
+    member __.Delay(f): unit -> Option<'x> = f
 
-    member this.TryWith(f, h): Option<'x> =
+    member __.TryWith(f, h): Option<'x> =
       try
         f ()
       with
       | e -> h e
 
-    member this.TryFinally(f, g): Option<'x> =
+    member __.TryFinally(f, g): Option<'x> =
       try
         f ()
       finally
         g ()
 
-    member this.Combine(o, f): Option<'x> =
+    member __.Combine(o, f): Option<'x> =
       match o with
       | Some () ->
         f ()
