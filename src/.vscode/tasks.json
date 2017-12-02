@@ -10,7 +10,10 @@
                 "build"
             ],
             "type": "shell",
-            "group": "build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
             "presentation": {
                 "reveal": "silent"
             },
@@ -25,7 +28,10 @@
                 "${workspaceFolder}/VainZero.FSharpErrorHandling.Tests/VainZero.FSharpErrorHandling.Tests.fsproj"
             ],
             "type": "shell",
-            "group": "build",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
             "presentation": {
                 "reveal": "always"
             },
