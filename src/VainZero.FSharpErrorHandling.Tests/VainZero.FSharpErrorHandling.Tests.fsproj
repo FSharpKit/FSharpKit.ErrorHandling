@@ -1,24 +1,18 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Include="Sample.fs" />
-    <Compile Include="Main.fs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Expecto" Version="5.*" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="1.0.0" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\VainZero.FSharpErrorHandling\VainZero.FSharpErrorHandling.fsproj" />
-  </ItemGroup> 
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="TestHelpers.fs" />
+    <Compile Include="Option.Tests.fs" />
+    <Compile Include="Main.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Expecto" Version="5.*" />
+    <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="1.0.0" />
+  </ItemGroup>
 </Project>
