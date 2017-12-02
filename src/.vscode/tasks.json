@@ -36,6 +36,25 @@
                 "reveal": "always"
             },
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "pack",
+            "command": "dotnet",
+            "args": [
+                "pack",
+                "${workspaceFolder}/VainZero.FSharpErrorHandling/VainZero.FSharpErrorHandling.fsproj",
+                "--configuration",
+                "Release"
+            ],
+            "type": "shell",
+            "group": "none",
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": "$msCompile",
+            "dependsOn": [
+                "test"
+            ]
         }
     ]
 }
