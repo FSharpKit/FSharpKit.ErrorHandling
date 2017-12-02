@@ -61,17 +61,18 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">
-      <HintPath>..\packages\FSharp.Core.4.1.2\lib\net45\FSharp.Core.dll</HintPath>
+      <HintPath>..\packages\FSharp.Core.4.2.3\lib\net45\FSharp.Core.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
-    <Reference Include="Persimmon.FSharp41">
-      <HintPath>..\packages\VainZero.Persimmon.1.2.1\lib\net45\Persimmon.FSharp41.dll</HintPath>
+    <Reference Include="Persimmon">
+      <HintPath>..\packages\Persimmon.3.1.1\lib\net45\Persimmon.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.ValueTuple">
-      <HintPath>..\packages\System.ValueTuple.4.3.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -82,8 +83,7 @@
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
-    <PostBuildEvent>$(SolutionDir)\packages\VainZero.Persimmon.Cli.1.2.1\tools\Persimmon.FSharp41.Cli.exe $(TargetPath)
-</PostBuildEvent>
+    <PostBuildEvent>$(SolutionDir)\packages\Persimmon.Console.3.1.1\tools\Persimmon.Console.exe $(TargetPath)</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
