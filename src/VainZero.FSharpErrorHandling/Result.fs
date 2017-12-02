@@ -1,4 +1,4 @@
-﻿namespace FSharpKit.ErrorHandling
+﻿namespace VainZero.FSharpErrorHandling
 
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
@@ -169,41 +169,41 @@ module Result =
       p e
 
   type ResultMinimalBuilder internal () =
-    member inline this.Return(x) =
+    member inline __.Return(x) =
       Ok x
 
-    member inline this.ReturnFrom(result: Result<_, _>) =
+    member inline __.ReturnFrom(result: Result<_, _>) =
       result
 
-    member inline this.Zero() =
+    member inline __.Zero() =
       Ok ()
 
-    member inline this.Bind(m, f) =
+    member inline __.Bind(m, f) =
       m |> Result.bind f
 
-    member inline this.Using(x, f) =
+    member inline __.Using(x, f) =
       using x f
 
   type ResultFullBuilder internal () =
     inherit ResultMinimalBuilder()
 
-    member this.Run(f): Result<'x, 'e> = f ()
+    member __.Run(f): Result<'x, 'e> = f ()
 
-    member this.Delay(f): unit -> Result<'x, 'e> = f
+    member __.Delay(f): unit -> Result<'x, 'e> = f
 
-    member this.TryWith(f, h): Result<'x, 'e> =
+    member __.TryWith(f, h): Result<'x, 'e> =
       try
         f ()
       with
       | e -> h e
 
-    member this.TryFinally(f, g): Result<'x, 'e> =
+    member __.TryFinally(f, g): Result<'x, 'e> =
       try
         f ()
       finally
         g ()
 
-    member this.Combine(r, f): Result<'x, 'e> =
+    member __.Combine(r, f): Result<'x, 'e> =
       match r with
       | Ok () ->
         f ()
@@ -295,7 +295,7 @@ module Result =
         else
           Error ()
       loop ()
-      
+
   /// Builds a computation which may be terminated with a successful result value
   /// using computation expression syntax.
   /// Supports minimal syntax for performance.

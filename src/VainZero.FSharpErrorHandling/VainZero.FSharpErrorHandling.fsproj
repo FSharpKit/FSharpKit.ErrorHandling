@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageVersion>1.0.0</PackageVersion>
+    <Authors>vain0</Authors>
+    <Description>Provides extended functionality for Option/Result types in F#.</Description>
+    <PackageLicenseUrl>https://github.com/vain0/VainZero.FSharpErrorHandling/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/vain0/VainZero.FSharpErrorHandling</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/vain0/VainZero.FSharpErrorHandling</RepositoryUrl>
+    <PackageTags>fsharp;option;result</PackageTags>
+    <IncludeSymbols>True</IncludeSymbols>
+    <IncludeSource>True</IncludeSource>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Option.fs" />
+    <Compile Include="Result.fs" />
+    <Compile Include="AsyncResult.fs" />
+  </ItemGroup>
+
+</Project>

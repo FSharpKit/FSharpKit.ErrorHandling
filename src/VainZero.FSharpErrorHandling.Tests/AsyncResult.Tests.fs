@@ -1,71 +1,75 @@
-﻿namespace FSharpKit.ErrorHandling
+﻿module VainZero.FSharpErrorHandling.AsyncResultTests
 
-open FSharpKit.Misc.Disposables
-open FSharpKit.UnitTest
+open System
 open System.Threading
+open Expecto
 
-module ``test AsyncResult`` =
-  let run a = a |> Async.RunSynchronously
+let run a = a |> Async.RunSynchronously
 
-  module ``test build`` =
-    let positive x =
-      async {
-        do! Async.SwitchToThreadPool()
-        return
-          if x >= 1
-          then Ok x
-          else x |> string |> Error
+let isA expected actualAsync =
+  async {
+    let! actual = actualAsync
+    expected |> is actual
+  }
+
+[<Tests>]
+let tests =
+  testList "test AsyncResult" [
+    yield testList "test build" [
+      let positive x =
+        async {
+          do! Async.SwitchToThreadPool()
+          return
+            if x >= 1
+            then Ok x
+            else x |> string |> Error
+        }
+
+      let defaultThreadId = Thread.CurrentThread.ManagedThreadId
+
+      yield testAsync "test return" {
+        do! AsyncResult.build { return 1 } |> isA (Ok 1)
       }
 
-    let ``test return`` =
-      test {
-        do! AsyncResult.build { return 1 } |> run |> is (Ok 1)
+      yield testAsync "test return!" {
+        do! AsyncResult.build { return! positive 1 } |> isA (Ok 1)
+        do! AsyncResult.build { return! positive 0 } |> isA (Error "0")
       }
 
-    let ``test return!`` =
-      test {
-        do! AsyncResult.build { return! positive 1 } |> run |> is (Ok 1)
-        do! AsyncResult.build { return! positive 0 } |> run |> is (Error "0")
-      }
-
-    let ``test let!: Success case.`` =
-      test {
+      yield testAsync "test let!: Success case." {
         do!
           AsyncResult.build {
             let! x = positive 1
             let! y = positive 2
             let! z = Ok 3
             return x + y + z
-          } |> run |> is (Ok 6)
+          } |> isA (Ok 6)
       }
 
-    let ``test let!: Error case.`` =
-      test {
+      yield testAsync "test let!: Error case." {
         do!
           AsyncResult.build {
             let! x = positive 1
             let! y = positive 0
             exn() |> raise
             return x + y
-          } |> run |> is (Error "0")
+          } |> isA (Error "0")
       }
 
-    let ``test do!`` =
-      test {
+      yield testAsync "test do!" {
         do!
           AsyncResult.build {
-            // On the main thread.
-            let threadId = Thread.CurrentThread.ManagedThreadId
             do! Async.SwitchToThreadPool()
             // On a thread from the thread pool.
-            if threadId = Thread.CurrentThread.ManagedThreadId then
-              return! Error "Unexpectedly on the main thread." |> AsyncResult.ofResult
-          } |> run |> is (Ok ())
+            if defaultThreadId = Thread.CurrentThread.ManagedThreadId then
+              return!
+                Error "Unexpectedly on the default thread."
+                |> AsyncResult.ofResult
+          } |> isA (Ok ())
       }
 
-    module ``test use`` =
-      let ``completion case`` =
-        test {
+      yield testList "test use" [
+        yield testAsync "completion case" {
           let disposable = new CountDisposable()
           let ar =
             AsyncResult.build {
@@ -73,13 +77,12 @@ module ``test AsyncResult`` =
               do! Async.SwitchToThreadPool()
               return disposable.Count
             }
-          do! disposable.Count |> is 0
+          disposable.Count |> is 0
           let result = ar |> run
-          do! (result, disposable.Count) |> is (Ok 0, 1)
+          (result, disposable.Count) |> is (Ok 0, 1)
         }
 
-      let ``exceptional case`` =
-        test {
+        yield testAsync "exceptional case" {
           let disposable = new CountDisposable()
           let ar =
             AsyncResult.build {
@@ -88,19 +91,19 @@ module ``test AsyncResult`` =
               exn(disposable.Count |> string) |> raise
               return disposable.Count
             }
-          do! disposable.Count |> is 0
+          disposable.Count |> is 0
           let result =
             try
               ar |> run
             with
             | e -> Error e
           let k = (result |> Result.errorOrRaise).Message |> int
-          do! (k, disposable.Count) |> is (0, 1)
+          (k, disposable.Count) |> is (0, 1)
         }
+      ]
 
-    module ``test try-with`` =
-      let ``completion case`` =
-        test {
+      yield testList "test try-with" [
+        yield testAsync "completion case" {
           let disposable = new CountDisposable()
           let ar =
             AsyncResult.build {
@@ -112,13 +115,12 @@ module ``test AsyncResult`` =
                 disposable.Dispose()
                 return! e |> AsyncResult.error
             }
-          do! disposable.Count |> is 0
+          disposable.Count |> is 0
           let result = ar |> run
-          do! (result, disposable.Count) |> is (Ok 0, 0)
+          (result, disposable.Count) |> is (Ok 0, 0)
         }
 
-      let ``exceptional case`` =
-        test {
+        yield testAsync "exceptional case" {
           let disposable = new CountDisposable()
           let ar =
             AsyncResult.build {
@@ -130,19 +132,19 @@ module ``test AsyncResult`` =
                 disposable.Dispose()
                 return! e |> AsyncResult.error
             }
-          do! disposable.Count |> is 0
+          disposable.Count |> is 0
           let result =
             try
               ar |> run
             with
             | e -> Error e
           let k = (result |> Result.errorOrRaise).Message |> int
-          do! (k, disposable.Count) |> is (0, 1)
+          (k, disposable.Count) |> is (0, 1)
         }
+      ]
 
-    module ``test try-finally`` =
-      let ``completion case`` =
-        test {
+      yield testList "test try-finally" [
+        yield testAsync "completion case" {
           let disposable = new CountDisposable()
           let ar =
             AsyncResult.build {
@@ -152,13 +154,12 @@ module ``test AsyncResult`` =
               finally
                 disposable.Dispose()
             }
-          do! disposable.Count |> is 0
+          disposable.Count |> is 0
           let result = ar |> run
-          do! (result, disposable.Count) |> is (Ok 0, 1)
+          (result, disposable.Count) |> is (Ok 0, 1)
         }
 
-      let ``exceptional case`` =
-        test {
+        yield testAsync "exceptional case" {
           let disposable = new CountDisposable()
           let ar =
             AsyncResult.build {
@@ -168,29 +169,28 @@ module ``test AsyncResult`` =
               finally
                 disposable.Dispose()
             }
-          do! disposable.Count |> is 0
+          disposable.Count |> is 0
           let result =
             try
               ar |> run
             with
             | e -> Error e
           let k = (result |> Result.errorOrRaise).Message |> int
-          do! (k, disposable.Count) |> is (0, 1)
+          (k, disposable.Count) |> is (0, 1)
         }
+      ]
 
-    let ``test Combine`` =
-      test {
+      yield testAsync "test Combine" {
         let count = ref 0
         do!
           AsyncResult.build {
             count |> incr
             return !count
-          } |> run |> is (Ok 1)
+          } |> isA (Ok 1)
       }
 
-    module ``test while`` =
-      let ``completion case`` =
-        test {
+      yield testList "test while" [
+        yield testAsync "completion case" {
           let count = ref 0
           let n = 10
           let counts = ResizeArray()
@@ -204,13 +204,12 @@ module ``test AsyncResult`` =
             AsyncResult.build {
               while (!count) < n do
                 do! incr
-            } |> run |> is (Ok ())
-          do! !count |> is n
-          do! counts.ToArray() |> is [|0..(n - 1)|]
+            } |> isA (Ok ())
+          !count |> is n
+          counts.ToArray() |> is [|0..(n - 1)|]
         }
 
-      let ``error case`` =
-        test {
+        yield testAsync "error case" {
           let n = 3
           let tryIncrement x =
             async {
@@ -225,13 +224,13 @@ module ``test AsyncResult`` =
                 values.Add(!i)
                 let! j = !i |> tryIncrement
                 i := j
-            } |> run |> is (Error ())
-          do! values.ToArray() |> is [|0..(n - 1)|]
+            } |> isA (Error ())
+          values.ToArray() |> is [|0..(n - 1)|]
         }
+      ]
 
-    module ``test for`` =
-      let ``completion case`` =
-        test {
+      yield testList "test for" [
+        yield testAsync "completion case" {
           let n = 5
           let advanceCount = ref 0
           let xs =
@@ -245,6 +244,9 @@ module ``test AsyncResult`` =
             AsyncResult.build {
               for x in xs do
                 values.Add((x, !advanceCount))
-            } |> run |> is (Ok ())
-          do! values.ToArray() |> is [|for i in 0..(n - 1) -> (i, i + 1)|]
+            } |> isA (Ok ())
+          values.ToArray() |> is [|for i in 0..(n - 1) -> (i, i + 1)|]
         }
+      ]
+    ]
+  ]

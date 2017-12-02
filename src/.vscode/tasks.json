@@ -1,0 +1,60 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "command": "dotnet",
+            "args": [
+                "build"
+            ],
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "test",
+            "command": "dotnet",
+            "args": [
+                "run",
+                "-p",
+                "${workspaceFolder}/VainZero.FSharpErrorHandling.Tests/VainZero.FSharpErrorHandling.Tests.fsproj"
+            ],
+            "type": "shell",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "pack",
+            "command": "dotnet",
+            "args": [
+                "pack",
+                "${workspaceFolder}/VainZero.FSharpErrorHandling/VainZero.FSharpErrorHandling.fsproj",
+                "--configuration",
+                "Release"
+            ],
+            "type": "shell",
+            "group": "none",
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": "$msCompile",
+            "dependsOn": [
+                "test"
+            ]
+        }
+    ]
+}
