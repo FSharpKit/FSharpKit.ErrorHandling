@@ -220,41 +220,41 @@ module Result =
   let build = ResultFullBuilder()
 
   type ResultErrorMinimalBuilder internal () =
-    member inline this.Return(x) =
+    member inline __.Return(x) =
       Error x
 
-    member inline this.ReturnFrom(result: Result<_, _>) =
+    member inline __.ReturnFrom(result: Result<_, _>) =
       result
 
-    member inline this.Zero() =
+    member inline __.Zero() =
       Error ()
 
-    member inline this.Bind(m, f) =
+    member inline __.Bind(m, f) =
       m |> bindError f
 
-    member inline this.Using(x, f) =
+    member inline __.Using(x, f) =
       using x f
 
   type ResultErrorFullBuilder internal () =
     inherit ResultErrorMinimalBuilder()
 
-    member this.Run(f): Result<'x, 'e> = f ()
+    member __.Run(f): Result<'x, 'e> = f ()
 
-    member this.Delay(f): unit -> Result<'x, 'e> = f
+    member __.Delay(f): unit -> Result<'x, 'e> = f
 
-    member this.TryWith(f, h): Result<'x, 'e> =
+    member __.TryWith(f, h): Result<'x, 'e> =
       try
         f ()
       with
       | e -> h e
 
-    member this.TryFinally(f, g): Result<'x, 'e> =
+    member __.TryFinally(f, g): Result<'x, 'e> =
       try
         f ()
       finally
         g ()
 
-    member this.Combine(r, f): Result<'x, 'e> =
+    member __.Combine(r, f): Result<'x, 'e> =
       match r with
       | Ok x ->
         Ok x
