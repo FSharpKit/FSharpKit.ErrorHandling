@@ -97,7 +97,7 @@ let tests =
               ar |> run
             with
             | e -> Error e
-          let k = (result |> Result.errorOrRaise).Message |> int
+          let k = (unwrapError result).Message |> int
           (k, disposable.Count) |> is (0, 1)
         }
       ]
@@ -138,7 +138,7 @@ let tests =
               ar |> run
             with
             | e -> Error e
-          let k = (result |> Result.errorOrRaise).Message |> int
+          let k = (unwrapError result).Message |> int
           (k, disposable.Count) |> is (0, 1)
         }
       ]
@@ -175,7 +175,7 @@ let tests =
               ar |> run
             with
             | e -> Error e
-          let k = (result |> Result.errorOrRaise).Message |> int
+          let k = (unwrapError result).Message |> int
           (k, disposable.Count) |> is (0, 1)
         }
       ]

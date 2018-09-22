@@ -56,18 +56,6 @@ let tests =
       !count |> is 1
     }
 
-    test "test valueOrRaise" {
-      Ok 1 |> Result.valueOrRaise |> is 1
-      let e = trap (fun () -> Error "x" |> Result.valueOrRaise)
-      e :? InvalidOperationException |> is true
-    }
-
-    test "test errorOrRaise" {
-      let e = trap (fun () -> Ok 1 |> Result.errorOrRaise)
-      e :? InvalidOperationException |> is true
-      Error "x" |> Result.errorOrRaise |> is "x"
-    }
-
     parameterize "test flatten"
       [
         (Ok (Ok 0), Ok 0)
@@ -204,7 +192,7 @@ let tests =
               | e ->
                 disposable.Dispose()
                 return! Error e
-            } |> Result.errorOrRaise
+            } |> unwrapError
           e.Message |> is "0"
           disposable.Count |> is 1
         }

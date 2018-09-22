@@ -71,24 +71,6 @@ module Result =
     | Error e ->
       e
 
-  /// Gets the successful value from the result.
-  /// Raises an InvalidOperationException otherwise.
-  let valueOrRaise (result: Result<'x, _>): 'x =
-    match result with
-    | Ok x ->
-      x
-    | Error _ ->
-      invalidOp "Result has no value."
-
-  /// Gets the error from the result.
-  /// Raises an InvalidOperationException otherwise.
-  let errorOrRaise (result: Result<_, 'e>): 'e =
-    match result with
-    | Ok _ ->
-      invalidOp "Result has no error."
-    | Error e ->
-      e
-
   /// Flattens the result with a nested value type.
   let flatten (result: Result<Result<'x, 'e>, 'e>): Result<'x, 'e> =
     match result with

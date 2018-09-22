@@ -25,6 +25,11 @@ module TestHelpers =
           yield testCase name (fun () -> run parameter)
       ]
 
+  let inline unwrapError r =
+    match r with
+    | Ok value -> failwithf "Expected an error but Ok: %A" value
+    | Error e -> e
+
 [<Sealed>]
 type CountDisposable() =
   let count = ref 0
