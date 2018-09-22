@@ -26,30 +26,30 @@ module Option =
   type OptionFullBuilder internal () =
     inherit OptionMinimalBuilder()
 
-    member __.Run(f): option<'x> = f ()
+    member inline __.Run(f): option<'x> = f ()
 
-    member __.Delay(f): unit -> option<'x> = f
+    member inline __.Delay(f): unit -> option<'x> = f
 
-    member __.TryWith(f, h): option<'x> =
+    member inline __.TryWith(f, h): option<'x> =
       try
         f ()
       with
       | e -> h e
 
-    member __.TryFinally(f, g): option<'x> =
+    member inline __.TryFinally(f, g): option<'x> =
       try
         f ()
       finally
         g ()
 
-    member __.Combine(o, f): option<'x> =
+    member inline __.Combine(o, f): option<'x> =
       match o with
       | Some () ->
         f ()
       | None ->
         None
 
-    member this.While(guard, f): option<unit> =
+    member inline this.While(guard, f): option<unit> =
       let rec loop () =
         if guard () then
           this.Combine(f (), loop)
@@ -57,7 +57,7 @@ module Option =
           Some ()
       loop ()
 
-    member this.For(xs: seq<'x>, f): option<unit> =
+    member inline this.For(xs: seq<'x>, f): option<unit> =
       use enumerator = xs.GetEnumerator()
       let rec loop () =
         if enumerator.MoveNext() then

@@ -169,30 +169,30 @@ module Result =
   type ResultFullBuilder internal () =
     inherit ResultMinimalBuilder()
 
-    member __.Run(f): Result<'x, 'e> = f ()
+    member inline __.Run(f): Result<'x, 'e> = f ()
 
-    member __.Delay(f): unit -> Result<'x, 'e> = f
+    member inline __.Delay(f): unit -> Result<'x, 'e> = f
 
-    member __.TryWith(f, h): Result<'x, 'e> =
+    member inline __.TryWith(f, h): Result<'x, 'e> =
       try
         f ()
       with
       | e -> h e
 
-    member __.TryFinally(f, g): Result<'x, 'e> =
+    member inline __.TryFinally(f, g): Result<'x, 'e> =
       try
         f ()
       finally
         g ()
 
-    member __.Combine(r, f): Result<'x, 'e> =
+    member inline __.Combine(r, f): Result<'x, 'e> =
       match r with
       | Ok () ->
         f ()
       | Error e ->
         Error e
 
-    member this.While(guard, f): Result<unit, 'e> =
+    member inline this.While(guard, f): Result<unit, 'e> =
       let rec loop () =
         if guard () then
           this.Combine(f (), loop)
@@ -200,7 +200,7 @@ module Result =
           Ok ()
       loop ()
 
-    member this.For(xs: seq<'x>, f): Result<unit, 'e> =
+    member inline this.For(xs: seq<'x>, f): Result<unit, 'e> =
       use enumerator = xs.GetEnumerator()
       let rec loop () =
         if enumerator.MoveNext() then
@@ -235,30 +235,30 @@ module Result =
   type ResultErrorFullBuilder internal () =
     inherit ResultErrorMinimalBuilder()
 
-    member __.Run(f): Result<'x, 'e> = f ()
+    member inline __.Run(f): Result<'x, 'e> = f ()
 
-    member __.Delay(f): unit -> Result<'x, 'e> = f
+    member inline __.Delay(f): unit -> Result<'x, 'e> = f
 
-    member __.TryWith(f, h): Result<'x, 'e> =
+    member inline __.TryWith(f, h): Result<'x, 'e> =
       try
         f ()
       with
       | e -> h e
 
-    member __.TryFinally(f, g): Result<'x, 'e> =
+    member inline __.TryFinally(f, g): Result<'x, 'e> =
       try
         f ()
       finally
         g ()
 
-    member __.Combine(r, f): Result<'x, 'e> =
+    member inline __.Combine(r, f): Result<'x, 'e> =
       match r with
       | Ok x ->
         Ok x
       | Error () ->
         f ()
 
-    member this.While(guard, f): Result<'x, unit> =
+    member inline this.While(guard, f): Result<'x, unit> =
       let rec loop () =
         if guard () then
           this.Combine(f (), loop)
@@ -266,7 +266,7 @@ module Result =
           Error ()
       loop ()
 
-    member this.For(xs: seq<'x>, f): Result<'x, unit> =
+    member inline this.For(xs: seq<'x>, f): Result<'x, unit> =
       use enumerator = xs.GetEnumerator()
       let rec loop () =
         if enumerator.MoveNext() then
