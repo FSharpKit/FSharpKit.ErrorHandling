@@ -69,6 +69,10 @@ let tests =
       }
 
       yield testList "test use" [
+        // We need to be careful.
+        // Bound resource should NOT be disposed synchronously
+        // but should be disposed after completion.
+
         yield testAsync "completion case" {
           let disposable = new CountDisposable()
           let ar =

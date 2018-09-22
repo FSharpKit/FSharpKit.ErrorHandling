@@ -209,14 +209,11 @@ module Result =
           Ok ()
       loop ()
 
-  /// Builds a computation which be may terminated with an error
-  /// using computation expression syntax.
-  /// Supports minimal syntax for performance.
+  /// Computation expression builder for `Result`.
+  /// Unlike `build`, this builder supports restricted features for performance.
   let build' = ResultMinimalBuilder()
 
-  /// Builds a computation which be may terminated with an error
-  /// using computation expression syntax.
-  /// Supports full syntax.
+  /// Computation expression builder for `Result`.
   let build = ResultFullBuilder()
 
   type ResultErrorMinimalBuilder internal () =
@@ -278,12 +275,12 @@ module Result =
           Error ()
       loop ()
 
-  /// Builds a computation which may be terminated with a successful result value
-  /// using computation expression syntax.
-  /// Supports minimal syntax for performance.
+  /// Computation expression builder for `Result`
+  /// with restricted features for performance.
   let buildError' = ResultErrorMinimalBuilder()
 
-  /// Builds a computation which may be terminated with a successful result value
-  /// using computation expression syntax.
-  /// Supports full syntax.
+  /// Computation expression builder for `Result`.
+  /// The computation stops when you "unwrap" a `Ok x` with `let!`
+  /// and then the return value is `Ok x`.
+  /// `return e` returns `Error e`.
   let buildError = ResultErrorFullBuilder()

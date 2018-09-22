@@ -129,6 +129,8 @@ let tests =
       )
 
     testList "test build" [
+      // These tests are essentially same as `Option.build`.
+
       test "test return" {
         Result.build {
           return 1

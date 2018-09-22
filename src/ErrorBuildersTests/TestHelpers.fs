@@ -6,18 +6,22 @@ open System
 module TestHelpers =
   open Expecto
 
-  let inline is expected actual =
+  /// Tests two values are equal.
+  let inline is<'T when 'T : equality> (expected: 'T) (actual: 'T): unit =
     Expect.equal actual expected "These should equal"
 
-  let trap f =
+  /// Tests the specified function raises an exception
+  /// and gets it.
+  let trap<'T> (f: unit -> 'T): exn =
     try
       f () |> ignore
       failtest "It should throw"
     with
-    | e ->
-      e
+    | ex ->
+      ex
 
-  let parameterize name parameters run =
+  /// Tests for each parameter.
+  let parameterize (name: string) (parameters: #seq<'T>) (run: 'T -> unit): Test =
     testList name
       [
         for (i, parameter) in parameters |> Seq.indexed do
@@ -25,11 +29,15 @@ module TestHelpers =
           yield testCase name (fun () -> run parameter)
       ]
 
-  let inline unwrapError r =
+  /// Expects the specified result to be an `Error(e)`
+  /// and gets `e`.
+  let inline unwrapError (r: Result<'T, 'E>): 'E =
     match r with
-    | Ok value -> failwithf "Expected an error but Ok: %A" value
+    | Ok value -> failtestf "Expected an error but Ok: %A" value
     | Error e -> e
 
+/// Represents a resource that counts how many times it's disposed
+/// to test exactly-once diposing.
 [<Sealed>]
 type CountDisposable() =
   let count = ref 0

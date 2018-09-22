@@ -118,8 +118,7 @@ module AsyncResult =
         return! loop ()
       }
 
-  /// Builds an asynchronous workflow which may be terminated with an error
-  /// using computation expression syntax.
+  /// Computation expression builder for `Async<Result<'T, 'E>>`.
   let build = AsyncResultFullBuilder()
 
   /// Creates a failable asynchronous workflow,

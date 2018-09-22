@@ -66,12 +66,10 @@ module Option =
           Some ()
       loop ()
 
-  /// Builds a computation which be may terminated with an error
-  /// using computation expression syntax.
-  /// Supports minimal syntax for performance.
+  /// Computation expression builder for `Option`.
+  /// Unlike `build`, this builder supports restricted features for performance.
   let build' = OptionMinimalBuilder()
 
-  /// Builds a computation which be may terminated with an error
+  /// Computation expression builder for `Option`.
   /// using computation expression syntax.
-  /// Supports full syntax.
   let build = OptionFullBuilder()
