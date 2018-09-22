@@ -1,4 +1,4 @@
-﻿namespace VainZero.FSharpErrorHandling
+namespace ErrorBuilders
 
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]

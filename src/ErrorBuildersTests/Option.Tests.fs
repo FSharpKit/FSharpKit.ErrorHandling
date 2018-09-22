@@ -1,4 +1,4 @@
-module VainZero.FSharpErrorHandling.OptionTests
+module ErrorBuilders.OptionTests
 
 open Expecto
 

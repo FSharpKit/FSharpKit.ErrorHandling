@@ -1,4 +1,4 @@
-﻿module VainZero.FSharpErrorHandling.ResultTests
+module ErrorBuilders.ResultTests
 
 open System
 open Expecto

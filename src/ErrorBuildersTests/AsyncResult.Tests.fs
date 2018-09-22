@@ -1,4 +1,4 @@
-﻿module VainZero.FSharpErrorHandling.AsyncResultTests
+module ErrorBuilders.AsyncResultTests
 
 open System
 open System.Threading

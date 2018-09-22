@@ -3,11 +3,10 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageVersion>1.0.0</PackageVersion>
-    <Authors>vain0</Authors>
+    <Authors>vain0x</Authors>
     <Description>Provides extended functionality for Option/Result types in F#.</Description>
-    <PackageLicenseUrl>https://github.com/vain0/VainZero.FSharpErrorHandling/blob/master/LICENSE.md</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/vain0/VainZero.FSharpErrorHandling</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/vain0/VainZero.FSharpErrorHandling</RepositoryUrl>
+    <PackageLicenseUrl>https://github.com/vain0x/fsharp-error-builders/blob/master/LICENSE</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/vain0x/vain0x/fsharp-error-builders</RepositoryUrl>
     <PackageTags>fsharp;option;result</PackageTags>
     <IncludeSymbols>True</IncludeSymbols>
     <IncludeSource>True</IncludeSource>
