@@ -1,4 +1,4 @@
-﻿namespace VainZero.FSharpErrorHandling
+namespace ErrorBuilders
 
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
@@ -68,24 +68,6 @@ module Result =
     match result with
     | Ok _ ->
       getError ()
-    | Error e ->
-      e
-
-  /// Gets the successful value from the result.
-  /// Raises an InvalidOperationException otherwise.
-  let valueOrRaise (result: Result<'x, _>): 'x =
-    match result with
-    | Ok x ->
-      x
-    | Error _ ->
-      invalidOp "Result has no value."
-
-  /// Gets the error from the result.
-  /// Raises an InvalidOperationException otherwise.
-  let errorOrRaise (result: Result<_, 'e>): 'e =
-    match result with
-    | Ok _ ->
-      invalidOp "Result has no error."
     | Error e ->
       e
 
@@ -227,52 +209,49 @@ module Result =
           Ok ()
       loop ()
 
-  /// Builds a computation which be may terminated with an error
-  /// using computation expression syntax.
-  /// Supports minimal syntax for performance.
+  /// Computation expression builder for `Result`.
+  /// Unlike `build`, this builder supports restricted features for performance.
   let build' = ResultMinimalBuilder()
 
-  /// Builds a computation which be may terminated with an error
-  /// using computation expression syntax.
-  /// Supports full syntax.
+  /// Computation expression builder for `Result`.
   let build = ResultFullBuilder()
 
   type ResultErrorMinimalBuilder internal () =
-    member inline this.Return(x) =
+    member inline __.Return(x) =
       Error x
 
-    member inline this.ReturnFrom(result: Result<_, _>) =
+    member inline __.ReturnFrom(result: Result<_, _>) =
       result
 
-    member inline this.Zero() =
+    member inline __.Zero() =
       Error ()
 
-    member inline this.Bind(m, f) =
+    member inline __.Bind(m, f) =
       m |> bindError f
 
-    member inline this.Using(x, f) =
+    member inline __.Using(x, f) =
       using x f
 
   type ResultErrorFullBuilder internal () =
     inherit ResultErrorMinimalBuilder()
 
-    member this.Run(f): Result<'x, 'e> = f ()
+    member __.Run(f): Result<'x, 'e> = f ()
 
-    member this.Delay(f): unit -> Result<'x, 'e> = f
+    member __.Delay(f): unit -> Result<'x, 'e> = f
 
-    member this.TryWith(f, h): Result<'x, 'e> =
+    member __.TryWith(f, h): Result<'x, 'e> =
       try
         f ()
       with
       | e -> h e
 
-    member this.TryFinally(f, g): Result<'x, 'e> =
+    member __.TryFinally(f, g): Result<'x, 'e> =
       try
         f ()
       finally
         g ()
 
-    member this.Combine(r, f): Result<'x, 'e> =
+    member __.Combine(r, f): Result<'x, 'e> =
       match r with
       | Ok x ->
         Ok x
@@ -296,12 +275,12 @@ module Result =
           Error ()
       loop ()
 
-  /// Builds a computation which may be terminated with a successful result value
-  /// using computation expression syntax.
-  /// Supports minimal syntax for performance.
+  /// Computation expression builder for `Result`
+  /// with restricted features for performance.
   let buildError' = ResultErrorMinimalBuilder()
 
-  /// Builds a computation which may be terminated with a successful result value
-  /// using computation expression syntax.
-  /// Supports full syntax.
+  /// Computation expression builder for `Result`.
+  /// The computation stops when you "unwrap" a `Ok x` with `let!`
+  /// and then the return value is `Ok x`.
+  /// `return e` returns `Error e`.
   let buildError = ResultErrorFullBuilder()

@@ -1,4 +1,4 @@
-module VainZero.FSharpErrorHandling.OptionTests
+module ErrorBuilders.OptionTests
 
 open Expecto
 
@@ -24,10 +24,16 @@ let tests =
       testList "test use" [
         test "completion case" {
           let disposable = new CountDisposable()
-          Option.build {
-            use disposable = disposable
-            return disposable.Count
-          } |> is (Some 0)
+          let k =
+            Option.build {
+              use disposable = disposable
+              return disposable.Count
+            }
+
+          // It shouldn't be disposed before `return`.
+          k |> is (Some 0)
+
+          // It should get disposed after `return`.
           disposable.Count |> is 1
         }
 
@@ -44,6 +50,8 @@ let tests =
       ]
 
       testList "test try-with" [
+        // Almost same as `use`.
+
         test "completion case" {
           let disposable = new CountDisposable()
           Option.build {
@@ -74,6 +82,8 @@ let tests =
       ]
 
       testList "test try-finally" [
+        // Almost same as `use`.
+
         test "completion case" {
           let disposable = new CountDisposable()
           Option.build {
@@ -118,6 +128,7 @@ let tests =
             if j < n then Some j else None
           Option.build {
             while true do
+              // If we bind `None`, the loop should stop.
               let! j = tryIncrement ()
               i := j
           } |> is None

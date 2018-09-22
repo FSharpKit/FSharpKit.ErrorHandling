@@ -1,4 +1,4 @@
-﻿module VainZero.FSharpErrorHandling.AsyncResultTests
+module ErrorBuilders.AsyncResultTests
 
 open System
 open System.Threading
@@ -69,6 +69,10 @@ let tests =
       }
 
       yield testList "test use" [
+        // We need to be careful.
+        // Bound resource should NOT be disposed synchronously
+        // but should be disposed after completion.
+
         yield testAsync "completion case" {
           let disposable = new CountDisposable()
           let ar =
@@ -97,7 +101,7 @@ let tests =
               ar |> run
             with
             | e -> Error e
-          let k = (result |> Result.errorOrRaise).Message |> int
+          let k = (unwrapError result).Message |> int
           (k, disposable.Count) |> is (0, 1)
         }
       ]
@@ -138,7 +142,7 @@ let tests =
               ar |> run
             with
             | e -> Error e
-          let k = (result |> Result.errorOrRaise).Message |> int
+          let k = (unwrapError result).Message |> int
           (k, disposable.Count) |> is (0, 1)
         }
       ]
@@ -175,7 +179,7 @@ let tests =
               ar |> run
             with
             | e -> Error e
-          let k = (result |> Result.errorOrRaise).Message |> int
+          let k = (unwrapError result).Message |> int
           (k, disposable.Count) |> is (0, 1)
         }
       ]

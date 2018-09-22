@@ -1,4 +1,4 @@
-﻿module VainZero.FSharpErrorHandling.ResultTests
+module ErrorBuilders.ResultTests
 
 open System
 open Expecto
@@ -54,18 +54,6 @@ let tests =
 
       Error "y" |> Result.defaultWithError f |> is "y"
       !count |> is 1
-    }
-
-    test "test valueOrRaise" {
-      Ok 1 |> Result.valueOrRaise |> is 1
-      let e = trap (fun () -> Error "x" |> Result.valueOrRaise)
-      e :? InvalidOperationException |> is true
-    }
-
-    test "test errorOrRaise" {
-      let e = trap (fun () -> Ok 1 |> Result.errorOrRaise)
-      e :? InvalidOperationException |> is true
-      Error "x" |> Result.errorOrRaise |> is "x"
     }
 
     parameterize "test flatten"
@@ -141,6 +129,8 @@ let tests =
       )
 
     testList "test build" [
+      // These tests are essentially same as `Option.build`.
+
       test "test return" {
         Result.build {
           return 1
@@ -204,7 +194,7 @@ let tests =
               | e ->
                 disposable.Dispose()
                 return! Error e
-            } |> Result.errorOrRaise
+            } |> unwrapError
           e.Message |> is "0"
           disposable.Count |> is 1
         }
