@@ -4,52 +4,52 @@ namespace ErrorBuilders
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Option =
   type OptionMinimalBuilder internal () =
-    member inline __.Return(x): Option<'x> =
+    member inline __.Return(x): option<'x> =
       Some x
 
-    member inline __.ReturnFrom(option): Option<'x> =
+    member inline __.ReturnFrom(option): option<'x> =
       option
 
-    member inline __.Zero(): Option<unit> =
+    member inline __.Zero(): option<unit> =
       Some ()
 
-    member inline __.Bind(o, f): Option<'x> =
+    member inline __.Bind(o, f): option<'x> =
       match o with
       | Some x ->
         f x
       | None ->
         None
 
-    member inline __.Using(x, f): Option<'x> =
+    member inline __.Using(x, f): option<'x> =
       using x f
 
   type OptionFullBuilder internal () =
     inherit OptionMinimalBuilder()
 
-    member __.Run(f): Option<'x> = f ()
+    member __.Run(f): option<'x> = f ()
 
-    member __.Delay(f): unit -> Option<'x> = f
+    member __.Delay(f): unit -> option<'x> = f
 
-    member __.TryWith(f, h): Option<'x> =
+    member __.TryWith(f, h): option<'x> =
       try
         f ()
       with
       | e -> h e
 
-    member __.TryFinally(f, g): Option<'x> =
+    member __.TryFinally(f, g): option<'x> =
       try
         f ()
       finally
         g ()
 
-    member __.Combine(o, f): Option<'x> =
+    member __.Combine(o, f): option<'x> =
       match o with
       | Some () ->
         f ()
       | None ->
         None
 
-    member this.While(guard, f): Option<unit> =
+    member this.While(guard, f): option<unit> =
       let rec loop () =
         if guard () then
           this.Combine(f (), loop)
@@ -57,7 +57,7 @@ module Option =
           Some ()
       loop ()
 
-    member this.For(xs: seq<'x>, f): Option<unit> =
+    member this.For(xs: seq<'x>, f): option<unit> =
       use enumerator = xs.GetEnumerator()
       let rec loop () =
         if enumerator.MoveNext() then
