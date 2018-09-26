@@ -12,13 +12,12 @@ type Benchmarks() =
   [<Literal>]
   let P = 1_000_000_007
 
-  [<Params(1_000_000)>]
-  member val N = 0 with get, set
+  let xs = [1..1_000_000]
 
   [<Benchmark>]
   member this.NativeFor() =
     let mutable s = 0
-    for i in 1..this.N do
+    for i in xs do
       s <- (s + i) % P
     s
 
@@ -26,16 +25,7 @@ type Benchmarks() =
   member this.OptionBuilderFor() =
     Option.build {
       let mutable s = 0
-      for i in 0..this.N do
-        s <- (s + i) % P
-      return s
-    }
-
-  [<Benchmark>]
-  member this.OptionMimBuilderFor() =
-    Option.build' {
-      let mutable s = 0
-      for i in 0..this.N do
+      for i in xs do
         s <- (s + i) % P
       return s
     }
@@ -44,7 +34,34 @@ type Benchmarks() =
   member this.OptionBuilderInlineFor() =
     Option.buildInline {
       let mutable s = 0
-      for i in 0..this.N do
+      for i in xs do
+        s <- (s + i) % P
+      return s
+    }
+
+  [<Benchmark>]
+  member this.OptionBuilderInlineStructExceptionalFor() =
+    Option.buildInlineStruct () {
+      let mutable s = 0
+      for i in xs do
+        s <- (s + i) % P
+      return s
+    }
+
+  [<Benchmark>]
+  member this.OptionBuilderValueFor() =
+    Option.buildv () {
+      let mutable s = 0
+      for i in xs do
+        s <- (s + i) % P
+      return s
+    }
+
+  [<Benchmark>]
+  member this.OptionBuilderValueExceptionalFor() =
+    Option.buildvx () {
+      let mutable s = 0
+      for i in xs do
         s <- (s + i) % P
       return s
     }
