@@ -66,6 +66,50 @@ module Option =
           Some ()
       loop ()
 
+  let inline combine o f: option<'x> =
+    match o with
+    | Some () -> f ()
+    | None -> None
+
+  type OptionFullInlineBuilder internal () =
+    inherit OptionMinimalBuilder()
+
+    member inline __.Run(f): option<'x> = f ()
+
+    member inline __.Delay(f): unit -> option<'x> = f
+
+    member inline __.TryWith(f, h): option<'x> =
+      try
+        f ()
+      with
+      | e -> h e
+
+    member inline __.TryFinally(f, g): option<'x> =
+      try
+        f ()
+      finally
+        g ()
+
+    member inline __.Combine(o, f): option<'x> =
+      combine o f
+
+    member inline this.While(guard, f): option<unit> =
+      let rec loop () =
+        if guard () then
+          combine (f ()) loop
+        else
+          Some ()
+      loop ()
+
+    member inline this.For(xs: #seq<'x>, f): option<unit> =
+      use enumerator = xs.GetEnumerator()
+      let rec loop () =
+        if enumerator.MoveNext() then
+          combine (f enumerator.Current) loop
+        else
+          Some ()
+      loop ()
+
   /// Computation expression builder for `Option`.
   /// Unlike `build`, this builder supports restricted features for performance.
   let build' = OptionMinimalBuilder()

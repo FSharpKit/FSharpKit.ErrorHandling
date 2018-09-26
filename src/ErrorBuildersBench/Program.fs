@@ -31,6 +31,24 @@ type Benchmarks() =
       return s
     }
 
+  [<Benchmark>]
+  member this.OptionMimBuilderFor() =
+    Option.build' {
+      let mutable s = 0
+      for i in 0..this.N do
+        s <- (s + i) % P
+      return s
+    }
+
+  [<Benchmark>]
+  member this.OptionBuilderInlineFor() =
+    Option.buildInline {
+      let mutable s = 0
+      for i in 0..this.N do
+        s <- (s + i) % P
+      return s
+    }
+
 [<EntryPoint>]
 let main _ =
   let config =
