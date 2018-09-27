@@ -3,15 +3,6 @@ namespace ErrorBuilders
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module AsyncResult =
-  module Internal =
-    /// Creates an asynchronous workflow,
-    /// which owns the specified resource and disposes it on finally.
-    let inline using (x: 'x) (f: 'x -> Async<'y>): Async<'y> =
-      async {
-        use x = x
-        return! f x
-      }
-
   type AsyncResultFullBuilder internal () =
     member inline __.Run(f) = f ()
 
@@ -30,7 +21,7 @@ module AsyncResult =
         return Ok ()
       }
 
-    member __.Bind(ar, f): Async<Result<'y, 'e>> =
+    member inline __.Bind(ar, f): Async<Result<'y, 'e>> =
       async {
         let! r = ar
         match r with
@@ -40,7 +31,7 @@ module AsyncResult =
           return Error e
       }
 
-    member __.Bind(r, f): Async<Result<'y, 'e>> =
+    member inline __.Bind(r, f): Async<Result<'y, 'e>> =
       async {
         match r with
         | Ok x ->
@@ -56,7 +47,10 @@ module AsyncResult =
       }
 
     member inline __.Using(x, f): Async<Result<'y, 'e>> =
-      Internal.using x f
+      async {
+        use x = x
+        return! f x
+      }
 
     member inline __.TryWith(f, h): Async<Result<'x, 'e>> =
       async {
@@ -75,7 +69,7 @@ module AsyncResult =
           onFinally ()
       }
 
-    member __.Combine(ar, continuation): Async<Result<'x, 'e>> =
+    member inline __.Combine(ar, continuation): Async<Result<'x, 'e>> =
       async {
         let! r = ar
         match r with
@@ -85,7 +79,7 @@ module AsyncResult =
           return Error e
       }
 
-    member __.While(guard, f): Async<Result<unit, 'e>> =
+    member inline __.While(guard, f): Async<Result<unit, 'e>> =
       let rec loop () =
         async {
           if guard () then
@@ -100,7 +94,7 @@ module AsyncResult =
         }
       loop ()
 
-    member __.For(xs: seq<'x>, f): Async<Result<unit, 'e>> =
+    member inline __.For(xs: seq<'x>, f): Async<Result<unit, 'e>> =
       async {
         use enumerator = xs.GetEnumerator()
         let rec loop () =

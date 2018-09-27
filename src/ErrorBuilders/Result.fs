@@ -3,6 +3,14 @@ namespace ErrorBuilders
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Result =
+  module Internals =
+    let inline combine (r: Result<unit, _>) (f: unit -> Result<_, _>): Result<_, _> =
+      match r with
+      | Ok () ->
+        f ()
+      | Error e ->
+        Error e
+
   /// Gets a value indicating whether the result has a successful value.
   let isOk (result: Result<'x, 'e>): bool =
     match result with
@@ -164,47 +172,44 @@ module Result =
       m |> Result.bind f
 
     member inline __.Using(x, f) =
-      using x f
+      use x = x
+      f x
 
   type ResultFullBuilder internal () =
     inherit ResultMinimalBuilder()
 
-    member __.Run(f): Result<'x, 'e> = f ()
+    member inline __.Run(f): Result<'x, 'e> = f ()
 
-    member __.Delay(f): unit -> Result<'x, 'e> = f
+    member inline __.Delay(f): unit -> Result<'x, 'e> = f
 
-    member __.TryWith(f, h): Result<'x, 'e> =
+    member inline __.TryWith(f, h): Result<'x, 'e> =
       try
         f ()
       with
       | e -> h e
 
-    member __.TryFinally(f, g): Result<'x, 'e> =
+    member inline __.TryFinally(f, g): Result<'x, 'e> =
       try
         f ()
       finally
         g ()
 
-    member __.Combine(r, f): Result<'x, 'e> =
-      match r with
-      | Ok () ->
-        f ()
-      | Error e ->
-        Error e
+    member inline __.Combine(r, f): Result<'x, 'e> =
+      Internals.combine r (f ())
 
-    member this.While(guard, f): Result<unit, 'e> =
+    member inline __.While(guard, f): Result<unit, 'e> =
       let rec loop () =
         if guard () then
-          this.Combine(f (), loop)
+          Internals.combine (f ()) loop
         else
           Ok ()
       loop ()
 
-    member this.For(xs: seq<'x>, f): Result<unit, 'e> =
+    member inline __.For(xs: seq<'x>, f): Result<unit, 'e> =
       use enumerator = xs.GetEnumerator()
       let rec loop () =
         if enumerator.MoveNext() then
-          this.Combine(f enumerator.Current, loop)
+          Internals.combine (f enumerator.Current) loop
         else
           Ok ()
       loop ()
@@ -230,35 +235,36 @@ module Result =
       m |> bindError f
 
     member inline __.Using(x, f) =
-      using x f
+      use x = x
+      f x
 
   type ResultErrorFullBuilder internal () =
     inherit ResultErrorMinimalBuilder()
 
-    member __.Run(f): Result<'x, 'e> = f ()
+    member inline __.Run(f): Result<'x, 'e> = f ()
 
-    member __.Delay(f): unit -> Result<'x, 'e> = f
+    member inline __.Delay(f): unit -> Result<'x, 'e> = f
 
-    member __.TryWith(f, h): Result<'x, 'e> =
+    member inline __.TryWith(f, h): Result<'x, 'e> =
       try
         f ()
       with
       | e -> h e
 
-    member __.TryFinally(f, g): Result<'x, 'e> =
+    member inline __.TryFinally(f, g): Result<'x, 'e> =
       try
         f ()
       finally
         g ()
 
-    member __.Combine(r, f): Result<'x, 'e> =
+    member inline __.Combine(r, f): Result<'x, 'e> =
       match r with
       | Ok x ->
         Ok x
       | Error () ->
         f ()
 
-    member this.While(guard, f): Result<'x, unit> =
+    member inline this.While(guard, f): Result<'x, unit> =
       let rec loop () =
         if guard () then
           this.Combine(f (), loop)
@@ -266,7 +272,7 @@ module Result =
           Error ()
       loop ()
 
-    member this.For(xs: seq<'x>, f): Result<'x, unit> =
+    member inline this.For(xs: seq<'x>, f): Result<'x, unit> =
       use enumerator = xs.GetEnumerator()
       let rec loop () =
         if enumerator.MoveNext() then

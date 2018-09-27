@@ -3,6 +3,16 @@ namespace ErrorBuilders
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Option =
+  module Internals =
+    let someUnit = Some ()
+
+    let inline combine (o: option<unit>) (f: unit -> option<_>): option<_> =
+      match o with
+      | Some () ->
+        f ()
+      | None ->
+        None
+
   type OptionMinimalBuilder internal () =
     member inline __.Return(x): option<'x> =
       Some x
@@ -11,7 +21,7 @@ module Option =
       option
 
     member inline __.Zero(): option<unit> =
-      Some ()
+      Internals.someUnit
 
     member inline __.Bind(o, f): option<'x> =
       match o with
@@ -21,49 +31,46 @@ module Option =
         None
 
     member inline __.Using(x, f): option<'x> =
-      using x f
+      use x = x
+      f x
 
   type OptionFullBuilder internal () =
     inherit OptionMinimalBuilder()
 
-    member __.Run(f): option<'x> = f ()
+    member inline __.Run(f): option<'x> = f ()
 
-    member __.Delay(f): unit -> option<'x> = f
+    member inline __.Delay(f): unit -> option<'x> = f
 
-    member __.TryWith(f, h): option<'x> =
+    member inline __.TryWith(f, h): option<'x> =
       try
         f ()
       with
       | e -> h e
 
-    member __.TryFinally(f, g): option<'x> =
+    member inline __.TryFinally(f, g): option<'x> =
       try
         f ()
       finally
         g ()
 
-    member __.Combine(o, f): option<'x> =
-      match o with
-      | Some () ->
-        f ()
-      | None ->
-        None
+    member inline __.Combine(o, f): option<'x> =
+      Internals.combine o f
 
-    member this.While(guard, f): option<unit> =
+    member inline __.While(guard, f): option<unit> =
       let rec loop () =
         if guard () then
-          this.Combine(f (), loop)
+          Internals.combine (f ()) loop
         else
-          Some ()
+          Internals.someUnit
       loop ()
 
-    member this.For(xs: seq<'x>, f): option<unit> =
+    member inline __.For(xs: seq<'x>, f): option<unit> =
       use enumerator = xs.GetEnumerator()
       let rec loop () =
         if enumerator.MoveNext() then
-          this.Combine(f enumerator.Current, loop)
+          Internals.combine (f enumerator.Current) loop
         else
-          Some ()
+          Internals.someUnit
       loop ()
 
   /// Computation expression builder for `Option`.
