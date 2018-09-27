@@ -21,7 +21,8 @@ module Option =
         None
 
     member inline __.Using(x, f): option<'x> =
-      using x f
+      use x = x
+      f x
 
   type OptionFullBuilder internal () =
     inherit OptionMinimalBuilder()

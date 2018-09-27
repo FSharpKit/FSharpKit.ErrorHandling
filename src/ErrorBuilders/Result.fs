@@ -164,7 +164,8 @@ module Result =
       m |> Result.bind f
 
     member inline __.Using(x, f) =
-      using x f
+      use x = x
+      f x
 
   type ResultFullBuilder internal () =
     inherit ResultMinimalBuilder()
@@ -230,7 +231,8 @@ module Result =
       m |> bindError f
 
     member inline __.Using(x, f) =
-      using x f
+      use x = x
+      f x
 
   type ResultErrorFullBuilder internal () =
     inherit ResultErrorMinimalBuilder()

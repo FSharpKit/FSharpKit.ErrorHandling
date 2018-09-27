@@ -3,15 +3,6 @@ namespace ErrorBuilders
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module AsyncResult =
-  module Internal =
-    /// Creates an asynchronous workflow,
-    /// which owns the specified resource and disposes it on finally.
-    let inline using (x: 'x) (f: 'x -> Async<'y>): Async<'y> =
-      async {
-        use x = x
-        return! f x
-      }
-
   type AsyncResultFullBuilder internal () =
     member inline __.Run(f) = f ()
 
@@ -56,7 +47,10 @@ module AsyncResult =
       }
 
     member inline __.Using(x, f): Async<Result<'y, 'e>> =
-      Internal.using x f
+      async {
+        use x = x
+        return! f x
+      }
 
     member inline __.TryWith(f, h): Async<Result<'x, 'e>> =
       async {
