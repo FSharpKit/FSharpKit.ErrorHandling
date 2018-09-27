@@ -4,73 +4,82 @@ namespace ErrorBuilders
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Option =
   module Internals =
-    let someUnit = Some ()
-
-    let inline combine (o: option<unit>) (f: unit -> option<_>): option<_> =
+    let inline toValueOption o =
       match o with
-      | Some () ->
+      | Some x -> ValueSome x
+      | None -> ValueNone
+
+    let inline ofValueOption o =
+      match o with
+      | ValueSome x -> Some x
+      | ValueNone -> None
+
+    let inline combine (o: voption<unit>) (f: unit -> voption<_>): voption<_> =
+      match o with
+      | ValueSome () ->
         f ()
-      | None ->
-        None
+      | ValueNone ->
+        ValueNone
 
   type OptionMinimalBuilder internal () =
-    member inline __.Return(x): option<'x> =
-      Some x
+    member inline __.Return(x): voption<'x> =
+      ValueSome x
 
-    member inline __.ReturnFrom(option): option<'x> =
-      option
+    member inline __.ReturnFrom(o: option<'x>): voption<'x> =
+      o |> Internals.toValueOption
 
-    member inline __.Zero(): option<unit> =
-      Internals.someUnit
+    member inline __.Zero(): voption<unit> =
+      ValueSome ()
 
-    member inline __.Bind(o, f): option<'x> =
+    member inline __.Bind(o, f): voption<'x> =
       match o with
       | Some x ->
         f x
       | None ->
-        None
+        ValueNone
 
-    member inline __.Using(x, f): option<'x> =
+    member inline __.Using(x, f): voption<'x> =
       use x = x
       f x
 
   type OptionFullBuilder internal () =
     inherit OptionMinimalBuilder()
 
-    member inline __.Run(f): option<'x> = f ()
+    member inline __.Run(f): option<'x> =
+      f () |> Internals.ofValueOption
 
-    member inline __.Delay(f): unit -> option<'x> = f
+    member inline __.Delay(f): unit -> voption<'x> = f
 
-    member inline __.TryWith(f, h): option<'x> =
+    member inline __.TryWith(f, h): voption<'x> =
       try
         f ()
       with
       | e -> h e
 
-    member inline __.TryFinally(f, g): option<'x> =
+    member inline __.TryFinally(f, g): voption<'x> =
       try
         f ()
       finally
         g ()
 
-    member inline __.Combine(o, f): option<'x> =
+    member inline __.Combine(o, f): voption<'x> =
       Internals.combine o f
 
-    member inline __.While(guard, f): option<unit> =
+    member inline __.While(guard, f): voption<unit> =
       let rec loop () =
         if guard () then
           Internals.combine (f ()) loop
         else
-          Internals.someUnit
+          ValueSome ()
       loop ()
 
-    member inline __.For(xs: seq<'x>, f): option<unit> =
+    member inline __.For(xs: seq<'x>, f): voption<unit> =
       use enumerator = xs.GetEnumerator()
       let rec loop () =
         if enumerator.MoveNext() then
           Internals.combine (f enumerator.Current) loop
         else
-          Internals.someUnit
+          ValueSome ()
       loop ()
 
   /// Computation expression builder for `Option`.
