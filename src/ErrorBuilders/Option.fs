@@ -3,6 +3,14 @@ namespace ErrorBuilders
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Option =
+  module Internals =
+    let inline combine (o: option<unit>) (f: unit -> option<_>): option<_> =
+      match o with
+      | Some () ->
+        f ()
+      | None ->
+        None
+
   type OptionMinimalBuilder internal () =
     member inline __.Return(x): option<'x> =
       Some x
@@ -44,25 +52,21 @@ module Option =
         g ()
 
     member inline __.Combine(o, f): option<'x> =
-      match o with
-      | Some () ->
-        f ()
-      | None ->
-        None
+      Internals.combine o f
 
-    member inline this.While(guard, f): option<unit> =
+    member inline __.While(guard, f): option<unit> =
       let rec loop () =
         if guard () then
-          this.Combine(f (), loop)
+          Internals.combine (f ()) loop
         else
           Some ()
       loop ()
 
-    member inline this.For(xs: seq<'x>, f): option<unit> =
+    member inline __.For(xs: seq<'x>, f): option<unit> =
       use enumerator = xs.GetEnumerator()
       let rec loop () =
         if enumerator.MoveNext() then
-          this.Combine(f enumerator.Current, loop)
+          Internals.combine (f enumerator.Current) loop
         else
           Some ()
       loop ()

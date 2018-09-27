@@ -3,6 +3,14 @@ namespace ErrorBuilders
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Result =
+  module Internals =
+    let inline combine (r: Result<unit, _>) (f: unit -> Result<_, _>): Result<_, _> =
+      match r with
+      | Ok () ->
+        f ()
+      | Error e ->
+        Error e
+
   /// Gets a value indicating whether the result has a successful value.
   let isOk (result: Result<'x, 'e>): bool =
     match result with
@@ -187,25 +195,21 @@ module Result =
         g ()
 
     member inline __.Combine(r, f): Result<'x, 'e> =
-      match r with
-      | Ok () ->
-        f ()
-      | Error e ->
-        Error e
+      Internals.combine r (f ())
 
-    member inline this.While(guard, f): Result<unit, 'e> =
+    member inline __.While(guard, f): Result<unit, 'e> =
       let rec loop () =
         if guard () then
-          this.Combine(f (), loop)
+          Internals.combine (f ()) loop
         else
           Ok ()
       loop ()
 
-    member inline this.For(xs: seq<'x>, f): Result<unit, 'e> =
+    member inline __.For(xs: seq<'x>, f): Result<unit, 'e> =
       use enumerator = xs.GetEnumerator()
       let rec loop () =
         if enumerator.MoveNext() then
-          this.Combine(f enumerator.Current, loop)
+          Internals.combine (f enumerator.Current) loop
         else
           Ok ()
       loop ()
