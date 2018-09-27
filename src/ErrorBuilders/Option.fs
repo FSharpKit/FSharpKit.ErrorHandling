@@ -4,6 +4,8 @@ namespace ErrorBuilders
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Option =
   module Internals =
+    let someUnit = Some ()
+
     let inline combine (o: option<unit>) (f: unit -> option<_>): option<_> =
       match o with
       | Some () ->
@@ -19,7 +21,7 @@ module Option =
       option
 
     member inline __.Zero(): option<unit> =
-      Some ()
+      Internals.someUnit
 
     member inline __.Bind(o, f): option<'x> =
       match o with
@@ -59,7 +61,7 @@ module Option =
         if guard () then
           Internals.combine (f ()) loop
         else
-          Some ()
+          Internals.someUnit
       loop ()
 
     member inline __.For(xs: seq<'x>, f): option<unit> =
@@ -68,7 +70,7 @@ module Option =
         if enumerator.MoveNext() then
           Internals.combine (f enumerator.Current) loop
         else
-          Some ()
+          Internals.someUnit
       loop ()
 
   /// Computation expression builder for `Option`.
