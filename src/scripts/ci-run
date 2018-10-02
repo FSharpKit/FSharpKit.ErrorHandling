@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -xeu
+
+# Path to the src dir.
+SRC="$1"
+
+# Debug or Release.
+CONF="$2"
+
+dotnet run -p $SRC/ErrorBuildersTests -c ${CONF-DEBUG}
+dotnet run -p $SRC/ErrorBuildersBench -c ${CONF-DEBUG}
