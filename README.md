@@ -2,6 +2,8 @@
 
 STATUS: NOT STABLE
 
+[![Build Status](https://travis-ci.org/vain0x/fsharp-error-builders.svg?branch=master)](https://travis-ci.org/vain0x/fsharp-error-builders)
+
 ## Overview
 
 - Option builder
